@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { supabase } from '../lib/supabase'
-import { KeyRound, Mail, UserPlus, LogIn } from 'lucide-react'
+import { KeyRound, Mail, UserPlus, LogIn, Sparkles } from 'lucide-react'
 
 export default function Auth() {
   const [loading, setLoading] = useState(false)
@@ -29,6 +29,28 @@ export default function Auth() {
         })
         if (error) throw error
       }
+    } catch (error) {
+      setMessage({ type: 'error', text: error.error_description || error.message })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleMagicLink = async (e) => {
+    e.preventDefault()
+    if (!email) {
+      setMessage({ type: 'error', text: 'Por favor, ingresa tu correo primero.' })
+      return
+    }
+    setLoading(true)
+    setMessage({ type: '', text: '' })
+
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+      })
+      if (error) throw error
+      setMessage({ type: 'success', text: '¡Revisa tu correo! Te enviamos un enlace mágico para entrar sin clave.' })
     } catch (error) {
       setMessage({ type: 'error', text: error.error_description || error.message })
     } finally {
@@ -91,9 +113,21 @@ export default function Auth() {
             </div>
           </div>
           
-          <button className="btn btn-primary" style={{ width: '100%', marginTop: '1rem' }} disabled={loading}>
+          <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '1rem' }} disabled={loading}>
             {loading ? 'Procesando...' : (isSignUp ? <><UserPlus size={18}/> Crear Cuenta</> : <><LogIn size={18}/> Iniciar Sesión</>)}
           </button>
+          
+          {!isSignUp && (
+            <button 
+              type="button"
+              onClick={handleMagicLink}
+              className="btn" 
+              style={{ width: '100%', marginTop: '0.75rem', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)', color: 'var(--text-primary)' }} 
+              disabled={loading}
+            >
+              <Sparkles size={18} style={{ color: '#a78bfa' }}/> Enviar Link Mágico
+            </button>
+          )}
         </form>
 
         <p style={{ marginTop: '1.5rem', color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
