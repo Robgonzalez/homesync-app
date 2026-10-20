@@ -1,4 +1,4 @@
--- 1. Create Tasks Table (Renamed to home_tasks to avoid conflict with baitolab)
+-- 1. Create Tasks Table (home_tasks)
 CREATE TABLE IF NOT EXISTS home_tasks (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     title TEXT NOT NULL,
